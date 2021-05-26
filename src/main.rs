@@ -9,6 +9,50 @@ use tokio::signal::unix::{signal, SignalKind};
 
 #[tokio::main]
 async fn main() {
+
+    // Initialize GPIO communications
+    let gpio = Gpio::new().unwrap_or_else(|e| {
+        println!("Error initializing gpio communication: [{}]", e);
+        exit(-1)
+    });
+
+    let mut pin2 = gpio
+        .get(2)
+        .unwrap_or_else(|e| {
+            println!("Error initializing gpio pin: [{}]", e);
+            exit(-1);
+        })
+        .into_output();
+
+    let mut pin3 = gpio
+        .get(3)
+        .unwrap_or_else(|e| {
+            println!("Error initializing gpio pin: [{}]", e);
+            exit(-1);
+        })
+        .into_output();
+
+    let mut pin4 = gpio
+        .get(4)
+        .unwrap_or_else(|e| {
+            println!("Error initializing gpio pin: [{}]", e);
+            exit(-1);
+        })
+        .into_output();
+
+    pin2.set_low();
+    pin3.set_low();
+    pin4.set_low();
+
+    loop {
+        println!("Toggling..");
+        pin2.toggle();
+        pin3.toggle();
+        pin4.toggle();
+        thread::sleep(Duration::from_millis(2000));
+    }
+
+    /*
     // Create signal handlers
     let mut sighup = signal(SignalKind::hangup()).unwrap();
     let mut sigterm = signal(SignalKind::terminate()).unwrap();
@@ -79,4 +123,6 @@ async fn main() {
     _ = sighup.recv() => cleanup(pin, "SIGHUP", pin_number),
     _ = sigterm.recv() => cleanup(pin, "SIGTERM", pin_number),
     }*/
+
+     */
 }
