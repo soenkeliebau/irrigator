@@ -59,6 +59,8 @@ async fn main() {
     //    let main_loop = async move {
     let duration = 10;
     //        loop {
+
+    /*
     println!("Watering field 1 for {} seconds ..", duration);
     pin1.set_high();
     thread::sleep(Duration::from_secs(duration));
@@ -73,7 +75,15 @@ async fn main() {
     pin3.set_high();
     thread::sleep(Duration::from_secs(duration));
     pin3.set_low();
-
+*/
+    println!("Opening all valves for 5 minutes..");
+    pin1.set_high();
+    pin2.set_high();
+    pin3.set_high();
+    thread::sleep(Duration::from_secs(5*60));
+    pin1.set_low();
+    pin2.set_low();
+    pin3.set_low();
     //println!("Waiting for 10 seconds...");
     //thread::sleep(Duration::from_secs(10));
     //      }
