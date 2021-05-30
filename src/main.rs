@@ -1,4 +1,4 @@
-use rppal::gpio::{Gpio, InputPin, Level, Trigger};
+use rppal::gpio::{Gpio, InputPin, Level, OutputPin, Trigger};
 use std::convert::TryFrom;
 use std::process::exit;
 use std::str::FromStr;
@@ -7,8 +7,20 @@ use std::{env, fmt};
 use std::{fs, thread};
 use tokio::signal::unix::{signal, SignalKind};
 
+fn cleanup(pins: Vec<&mut OutputPin>) {
+    println!("Got signal, cleaning up and shutting down...");
+    for pin in pins {
+        pin.set_low()
+    }
+    println!("== Button stopped ==")
+}
+
 #[tokio::main]
 async fn main() {
+    // Create signal handlers
+    //let mut sighup = signal(SignalKind::hangup()).unwrap();
+    //let mut sigterm = signal(SignalKind::terminate()).unwrap();
+    //let mut sigint = signal(SignalKind::interrupt()).unwrap();
 
     // Initialize GPIO communications
     let gpio = Gpio::new().unwrap_or_else(|e| {
@@ -16,8 +28,16 @@ async fn main() {
         exit(-1)
     });
 
+    let mut pin1 = gpio
+        .get(23)
+        .unwrap_or_else(|e| {
+            println!("Error initializing gpio pin: [{}]", e);
+            exit(-1);
+        })
+        .into_output();
+
     let mut pin2 = gpio
-        .get(2)
+        .get(24)
         .unwrap_or_else(|e| {
             println!("Error initializing gpio pin: [{}]", e);
             exit(-1);
@@ -25,32 +45,46 @@ async fn main() {
         .into_output();
 
     let mut pin3 = gpio
-        .get(3)
+        .get(25)
         .unwrap_or_else(|e| {
             println!("Error initializing gpio pin: [{}]", e);
             exit(-1);
         })
         .into_output();
 
-    let mut pin4 = gpio
-        .get(4)
-        .unwrap_or_else(|e| {
-            println!("Error initializing gpio pin: [{}]", e);
-            exit(-1);
-        })
-        .into_output();
-
+    pin1.set_low();
     pin2.set_low();
     pin3.set_low();
-    pin4.set_low();
 
-    loop {
-        println!("Toggling..");
-        pin2.toggle();
-        pin3.toggle();
-        pin4.toggle();
-        thread::sleep(Duration::from_millis(2000));
-    }
+    //    let main_loop = async move {
+    let duration = 10;
+    //        loop {
+    println!("Watering field 1 for {} seconds ..", duration);
+    pin1.set_high();
+    thread::sleep(Duration::from_secs(duration));
+    pin1.set_low();
+
+    println!("Watering field 2 for {} seconds ..", duration);
+    pin2.set_high();
+    thread::sleep(Duration::from_secs(duration));
+    pin2.set_low();
+
+    println!("Watering field 3 for {} seconds ..", duration);
+    pin3.set_high();
+    thread::sleep(Duration::from_secs(duration));
+    pin3.set_low();
+
+    //println!("Waiting for 10 seconds...");
+    //thread::sleep(Duration::from_secs(10));
+    //      }
+    //};
+
+    //tokio::select! {
+    //    _ = sigint.recv() => cleanup(),
+    //    _ = sighup.recv() => cleanup(),
+    //    _ = sigterm.recv() => cleanup(),
+    //    _ = main_loop => cleanup(),
+   // }
 
     /*
     // Create signal handlers
