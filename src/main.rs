@@ -80,7 +80,7 @@ async fn main() {
     pin1.set_high();
     pin2.set_high();
     pin3.set_high();
-    thread::sleep(Duration::from_secs(5*60));
+    thread::sleep(Duration::from_secs(5));
     pin1.set_low();
     pin2.set_low();
     pin3.set_low();
